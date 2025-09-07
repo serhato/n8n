@@ -1,0 +1,194 @@
+{
+  "name": "Food flow",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Recipe",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Title",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Description",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "ingredients",
+              "fieldType": "textarea",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Steps",
+              "fieldType": "textarea",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Image",
+              "fieldType": "file",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -160,
+        -160
+      ],
+      "id": "17d303ab-b1ba-4396-9c6f-dfe63499d5b7",
+      "name": "On form submission",
+      "webhookId": "YOUR_FORM_WEBHOOK_ID"
+    },
+    {
+      "parameters": {
+        "resource": "page",
+        "title": "={{ $('On form submission').item.json.Title }}",
+        "additionalFields": {
+          "content": "=<h1>{{ $('On form submission').item.json.Title }}</h1>\n\n<p>{{ $('On form submission').item.json.Description }}</p>\n\n<img src=\"{{ $('HTTP Request').item.json.guid.rendered }}\"></img>\n\n<h2>Ingredients:</h2>\n{{ $json.ingredients }}\n<h2>Steps:</h2>\n{{ $json.Steps }}",
+          "slug": "={{ $json.slug }}",
+          "status": "draft"
+        }
+      },
+      "type": "n8n-nodes-base.wordpress",
+      "typeVersion": 1,
+      "position": [
+        608,
+        -160
+      ],
+      "id": "83548068-fac5-4daf-8281-58141d8dcb0e",
+      "name": "Wordpress",
+      "credentials": {
+        "wordpressApi": {
+          "id": "YOUR_WORDPRESS_CREDENTIAL_ID",
+          "name": "Wordpress account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dd30c691-63b8-4f1f-93b5-4c7f9cb9b71d",
+              "name": "ingredients",
+              "value": "={{ '<ul>' + $('On form submission').item.json.ingredients.split('\\n').map(i => `<li>${i.trim()}</li>`).join('') + '</ul>' }}",
+              "type": "string"
+            },
+            {
+              "id": "3346266a-6529-49f1-a9e2-f70463e1d12d",
+              "name": "Steps",
+              "value": "={{ '<ol>' + $('On form submission').item.json.Steps.split('\\n').map(i => `<li>${i.trim()}</li>`).join('') + '</ol>' }}",
+              "type": "string"
+            },
+            {
+              "id": "c1f15d52-3048-4e15-8b03-3e51e17fba37",
+              "name": "slug",
+              "value": "={{ $('On form submission').item.json.Title.toLowerCase().replace(/[^\\w\\s-]/g, '').trim().replace(/\\s+/g, '-') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        384,
+        -160
+      ],
+      "id": "d6fbde39-dbb5-474a-b082-2fa270d9ab62",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://your-wordpress-site.com/wp-json/wp/v2/media",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "wordpressApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Disposition",
+              "value": "=attachment; filename=\"{{ $binary.Image.fileName }}\""
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "=Image",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        144,
+        -160
+      ],
+      "id": "861849c6-1e37-46d7-b4d8-8e9cc1e3ef31",
+      "name": "HTTP Request",
+      "credentials": {
+        "wordpressApi": {
+          "id": "YOUR_WORDPRESS_CREDENTIAL_ID",
+          "name": "Wordpress account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Wordpress",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wordpress": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "005783eb-8314-4987-b976-ec986b053441",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "YOUR_N8N_INSTANCE_ID"
+  },
+  "id": "XCIJEBWDZv3KwmtR",
+  "tags": []
+}
