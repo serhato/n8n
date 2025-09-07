@@ -1,0 +1,1144 @@
+{
+  "name": "Lighting v3",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        48,
+        -128
+      ],
+      "id": "75dfb1c3-b51f-49de-a1d6-fb1619e10ea0",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-4.1",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        272,
+        80
+      ],
+      "id": "5b7aabdc-241b-4b6d-ab3e-c004bbded482",
+      "name": "OpenRouter",
+      "credentials": {
+        "openRouterApi": {
+          "id": "YOUR_OPENROUTER_CREDENTIAL_ID",
+          "name": "OpenRouter"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "google/gemini-2.5-pro-exp-03-25:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        144,
+        80
+      ],
+      "id": "72631ae6-f597-4675-ace9-7c5ce31b3cc2",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "YOUR_OPENROUTER_CREDENTIAL_ID",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEETS_DOC_ID",
+          "mode": "list",
+          "cachedResultName": "Workfile",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEETS_DOC_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1081410120,
+          "mode": "list",
+          "cachedResultName": "Input",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEETS_DOC_ID/edit#gid=1081410120"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        208,
+        -128
+      ],
+      "id": "5b3f8934-828b-4458-ba5b-29c8995c50d9",
+      "name": "Google Sheets Input1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.Link }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        384,
+        -128
+      ],
+      "id": "ae14fef5-63c7-42a3-90a8-7a0c6625dda1",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cloud.llamaindex.ai/api/parsing/upload",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_LLAMAINDEX_API_TOKEN"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "premium_mode",
+              "value": "true"
+            },
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        560,
+        -128
+      ],
+      "id": "ffec1baa-dfe0-42a8-888b-46d41ad55eb2",
+      "name": "Premium Parse1"
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        752,
+        -128
+      ],
+      "id": "7848a482-abdf-4e0d-9101-a3380478e134",
+      "name": "Wait1",
+      "webhookId": "YOUR_WAIT_WEBHOOK_ID"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.cloud.llamaindex.ai/api/parsing/job/{{ $json.id }}/result/markdown",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_LLAMAINDEX_API_TOKEN"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        928,
+        -128
+      ],
+      "id": "a2d77013-e522-4828-9076-4a2a2bb844cc",
+      "name": "Premium Result1",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEETS_DOC_ID",
+          "mode": "list",
+          "cachedResultName": "Workfile",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEETS_DOC_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1446732714,
+          "mode": "list",
+          "cachedResultName": "Output",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEETS_DOC_ID/edit#gid=1446732714"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Product Application": "={{ $('Google Sheets Input1').item.json['Product Application'] }}",
+            "Product Type": "={{ $('Google Sheets Input1').item.json['Product Type'] }}",
+            "Model Number": "={{ $('Google Sheets Input1').item.json['Part Number'] }}",
+            "Manufacturer": "={{ $('Google Sheets Input1').item.json.Vendor }}",
+            "Sale Type": "={{ $('Google Sheets Input1').item.json['Sale Type'] }}",
+            "Marketplace Sell Price": "={{ $('Google Sheets Input1').item.json.Price }}",
+            "Total Inventory": "={{ $('Google Sheets Input1').item.json.Quantity }}",
+            "Series/Family": "={{ $json.output.series_family }}",
+            "Wattage 1": "={{ $json.output.wattage_options[0] }}",
+            "Wattage 2": "={{ $json.output.wattage_options[1] }}",
+            "Wattage 3": "={{ $json.output.wattage_options[2] }}",
+            "Wattage 4": "={{ $json.output.wattage_options[3] }}",
+            "Wattage 5": "={{ $json.output.wattage_options[4] }}",
+            "Lumens 1": "={{ $json.output.lumen_options[0] }}",
+            "Lumens 2": "={{ $json.output.lumen_options[1] }}",
+            "Lumens 3": "={{ $json.output.lumen_options[2] }}",
+            "Lumens 4": "={{ $json.output.lumen_options[3] }}",
+            "Lumens 5": "={{ $json.output.lumen_options[4] }}",
+            "CCT 1": "={{ $json.output.kelvin_options[0] }}",
+            "CCT 2": "={{ $json.output.kelvin_options[1] }}",
+            "CCT 3": "={{ $json.output.kelvin_options[2] }}",
+            "CCT 4": "={{ $json.output.kelvin_options[3] }}",
+            "CCT 5": "={{ $json.output.kelvin_options[4] }}",
+            "CRI": "={{ $json.output.cri }}",
+            "THD": "={{ $json.output.thd }}",
+            "Power Factor": "={{ $json.output.power_factor }}",
+            "Input Voltage": "={{ $json.output.voltage_range }}",
+            "Output Control Type": "={{ $json.output.output_control_type }}",
+            "Dimming Type": "={{ $json.output.dimming }}",
+            "L70 Lifetime (hrs)": "={{ $json.output.l70_lifetime }}",
+            "Minimum (Celsius)": "={{ $json.output.minimum_celcius }}",
+            "Maximum (Celsius)": "={{ $json.output.maximum_celcius }}",
+            "Beam Angle (deg)": "={{ $json.output.beam_angle }}",
+            "IP Rating": "={{ $json.output.ip_rating }}",
+            "Mtg 1": "={{ $json.output.mounting.mtg1 }}",
+            "Warranty": "={{ $json.output.warranty_years }}",
+            "Mtg 2": "={{ $json.output.mounting.mtg2 }}",
+            "Mtg 3": "={{ $json.output.mounting.mtg3 }}",
+            "Qualification": "={{ $json.output.dlc_certification }}",
+            "DLC ID": "={{ $json.output.dlc_certification_id }}",
+            "Safety Certification": "={{ $json.output.safety_certification }}",
+            "Cert 1": "={{ $json.output.certifications.cert1 }}",
+            "Cert 2": "={{ $json.output.certifications.cert2 }}",
+            "Cert 3": "={{ $json.output.certifications.cert3 }}",
+            "Cert 4": "={{ $json.output.certifications.cert4 }}",
+            "Environmental": "={{ $json.output.environmental }}",
+            "Product Weight (lbs.)": "={{ $json.output.weight_lbs }}",
+            "Product Length (in)": "={{ $json.output.dimensions['length(in)'] }}",
+            "Product Width (in)": "={{ $json.output.dimensions['width(in)'] }}",
+            "Product Height (in)": "={{ $json.output.dimensions['length(in)'] }}",
+            "Diameter (in)": "={{ $json.output.dimensions['diameter(in)'] }}",
+            "Distribution Type": "={{ $json.output.distrubiton_type }}",
+            "BUG Rating": "={{ $json.output.bug_rating }}",
+            "Housing Material": "={{ $json.output.housing_material }}",
+            "Lens Type": "={{ $json.output.lens_type }}",
+            "Housing Finish Color": "={{ $json.output.finish }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Product Application",
+              "displayName": "Product Application",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Product Type",
+              "displayName": "Product Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Series/Family",
+              "displayName": "Series/Family",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Model Number",
+              "displayName": "Model Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "SKU\n (if same as Model Number Leave Blank)",
+              "displayName": "SKU\n (if same as Model Number Leave Blank)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Manufacturer",
+              "displayName": "Manufacturer",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sale Type",
+              "displayName": "Sale Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Wattage 1",
+              "displayName": "Wattage 1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Wattage 2",
+              "displayName": "Wattage 2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Wattage 3",
+              "displayName": "Wattage 3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Wattage 4",
+              "displayName": "Wattage 4",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Wattage 5",
+              "displayName": "Wattage 5",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lumens 1",
+              "displayName": "Lumens 1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lumens 2",
+              "displayName": "Lumens 2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lumens 3",
+              "displayName": "Lumens 3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lumens 4",
+              "displayName": "Lumens 4",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lumens 5",
+              "displayName": "Lumens 5",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CCT 1",
+              "displayName": "CCT 1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CCT 2",
+              "displayName": "CCT 2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CCT 3",
+              "displayName": "CCT 3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CCT 4",
+              "displayName": "CCT 4",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CCT 5",
+              "displayName": "CCT 5",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CRI",
+              "displayName": "CRI",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "THD",
+              "displayName": "THD",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Power Factor",
+              "displayName": "Power Factor",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Input Voltage",
+              "displayName": "Input Voltage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Output Control Type",
+              "displayName": "Output Control Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Dimming Type",
+              "displayName": "Dimming Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "L70 Lifetime (hrs)",
+              "displayName": "L70 Lifetime (hrs)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Minimum (Celsius)",
+              "displayName": "Minimum (Celsius)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Maximum (Celsius)",
+              "displayName": "Maximum (Celsius)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Beam Angle (deg)",
+              "displayName": "Beam Angle (deg)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Distribution Type",
+              "displayName": "Distribution Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "BUG Rating",
+              "displayName": "BUG Rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Housing Material",
+              "displayName": "Housing Material",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lens Type",
+              "displayName": "Lens Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Housing Finish Color",
+              "displayName": "Housing Finish Color",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "IP Rating",
+              "displayName": "IP Rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "IK Rating",
+              "displayName": "IK Rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Warranty",
+              "displayName": "Warranty",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Mtg 1",
+              "displayName": "Mtg 1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Mtg 2",
+              "displayName": "Mtg 2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Mtg 3",
+              "displayName": "Mtg 3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Qualification",
+              "displayName": "Qualification",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "DLC ID",
+              "displayName": "DLC ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Safety Certification",
+              "displayName": "Safety Certification",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Cert 1",
+              "displayName": "Cert 1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Cert 2",
+              "displayName": "Cert 2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Cert 3",
+              "displayName": "Cert 3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Cert 4",
+              "displayName": "Cert 4",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Environmental",
+              "displayName": "Environmental",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Product Weight (lbs.)",
+              "displayName": "Product Weight (lbs.)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Product Length (in)",
+              "displayName": "Product Length (in)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Product Width (in)",
+              "displayName": "Product Width (in)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Product Height (in)",
+              "displayName": "Product Height (in)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Diameter (in)",
+              "displayName": "Diameter (in)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Units per Package",
+              "displayName": "Units per Package",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Weight (lbs.)",
+              "displayName": "Weight (lbs.)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Length (in)",
+              "displayName": "Length (in)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Width \n(in)",
+              "displayName": "Width \n(in)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Height \n(in)",
+              "displayName": "Height \n(in)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Quantity",
+              "displayName": "Quantity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Weight (lbs.)",
+              "displayName": "Weight (lbs.)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Length (in)",
+              "displayName": "Length (in)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Width \n(in)",
+              "displayName": "Width \n(in)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Height \n(in)",
+              "displayName": "Height \n(in)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Country of Origin",
+              "displayName": "Country of Origin",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Minimum Order Quantity",
+              "displayName": "Minimum Order Quantity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Marketplace Sell Price",
+              "displayName": "Marketplace Sell Price",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Warehouse #1 Inventory",
+              "displayName": "Warehouse #1 Inventory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Warehouse #2 Inventory",
+              "displayName": "Warehouse #2 Inventory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Warehouse #3 Inventory",
+              "displayName": "Warehouse #3 Inventory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Warehouse #4 Inventory",
+              "displayName": "Warehouse #4 Inventory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Warehouse #5 Inventory",
+              "displayName": "Warehouse #5 Inventory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Total Inventory",
+              "displayName": "Total Inventory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Specification Sheet",
+              "displayName": "Specification Sheet",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Installation Instructions",
+              "displayName": "Installation Instructions",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Approved Dimmer List",
+              "displayName": "Approved Dimmer List",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Graphic 1",
+              "displayName": "Graphic 1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Graphic 2",
+              "displayName": "Graphic 2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Graphic 3",
+              "displayName": "Graphic 3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        864,
+        112
+      ],
+      "id": "e4c960a1-20d9-4fce-9405-0f48bd7f8eb7",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.markdown }}",
+        "schemaType": "fromJson",
+        "jsonSchemaExample": "{\n  \"product_title\": \"ESL Vision 821 Panel Series\",\n  \"model\": \"ESL-CSS-821-14-2030W-3550K\",\n  \"series_family\": \"CSS\",\n  \"sku\": \"ESL-CSS-821-14-2030W-3550K\",\n  \"wattage_selectable\": true,\n  \"wattage_options\": [20, 25, 30],\n  \"kelvin_selectable\": true,\n  \"kelvin_options\": [],\n  \"lumen_selectable\": true,\n  \"lumen_options\": [4000, 5000],\n  \"cri\": \">80\",\n  \"beam_angle\": \"110°\",\n  \"distrubiton_type\": \"wide\",\n  \"voltage_range\": \"120–277V AC\",\n  \"power_factor\": \">0.9\",\n  \"thd\": \"<15%\",\n  \"l70_lifetime\":\"150,000\",\n  \"output_control_type\": \"Dimming\",\n  \"dimming\": \"0–10V\",\n  \"ip_rating\": \"IP65\",\n  \"bug_rating\":\"\",\n  \"warranty_years\": 5,\n  \"warranty_class\": \"Standard\",\n  \"dimensions\": {\n    \"width(in)\": \"11.9\",\n    \"height(in)\": \"11.9\",\n    \"length(in)\": \"1.5\",\n    \"diameter(in)\": \"1.5\"\n  },\n  \"weight_lbs\": \"4.43 lbs\",\n  \"dlc_certification\": \"DLC Premium\",\n  \"dlc_certification_id\": \"ABC123\", \n  \"safety_certification\": \"UL\",\n  \"certifications\": {\n    \"cert1\": \"NSF\",\n    \"cert2\": \"FCC\",\n    \"cert3\": \"RoHS\",\n    \"cert4\": \"BAA\"\n  },\n  \"minimum_celcius\": \"-25\",\n  \"maximum_celcius\": \"125\",\n  \"housing_material\": \"Die-cast\",\n  \"lens_type\": \"Polycarbonate\",\n  \"finish\": \"White\",\n  \"mounting\": {\n    \"mtg1\": \"Ceiling\",\n    \"mtg2\": \"Suspended\",\n    \"mtg3\": \"Recessed\"\n  },\n  \"environmental\":\"Wet Location\",\n  \"accessories\": {\n    \"surface_mount_kits\": [\n      \"ESL-ACCS-22-SMK-02\",\n      \"ESL-ACCS-24-SMK-02\",\n      \"ESL-ACCS-14-SMK-02\"\n    ],\n    \"flange_kits\": [\n      \"ESL-ACCS-22-FLK-01\",\n      \"ESL-ACCS-24-FLK-01\",\n      \"ESL-ACCS-14-FLK-01\"\n    ],\n    \"specialty\": [\n      \"ESL-ACCS-ACHK-S2\"\n    ]\n  }\n}",
+        "options": {
+          "systemPromptTemplate": "=## Goal\nYou are an expert extraction algorithm. \n\n## Objective\nExtract product details according to the given JSON example relying on the file provided to you. \n\n## Dimensions\nIf the product is not a round product, the dimensions should be in (LengthxWidthxHeight) format. \nExample: (LxWxH): 24.8\" x 15\" x 2.16\" -> Length: 24.8, Width: 15, Height: 2.16\n\nIf the product is a round-shaped product, then the dimensions should be in (DiameterxHeight) format. \nExample: 10.85\" x 3.95\" -> Diameter: 10.85 Height: 3.95\n\n### Rules for Dimension\n- Use data either in the Product Specifications section or the Dimensions Column in the table in the Catalog Data Section. \n- Do not add inch sign to the output, use only digits. \n- Ignore the Dimensions sections at the last page of the input. \n- Do not use these values in this graph in the Dimensions section at the very bottom of the data provided: 'mermaid\\ngraph TD'\n\n## Series\nSeries is the value of the Type in the Ordering Guide section. Use only the value, do not add anything more. For Led series or another, if there is a Family value in the Ordering Guide section, use the value in Family instead of Type. \n### Examples\n- Correct Output Example: RHB\n- Wrong Output Example: RHB Series\n\n\n## Part Number\nThe part number is something like this: {{ $('Google Sheets Input1').item.json['Part Number'] }}\n\nThis structure of a part number is produced according to the values in the Ordering Guide section in the exact order. \n\n## Power Factor \nUse the power factor '>0.99 @120 VAC' if you see double values.\nUse only '>0.99' format instead of '>0.99 @120 VAC' format. \n\n## Finishing Color\n'finish' in the JSON output should be pulled from the Product Specifications section or the Finish cell from the Ordering Guide section. These values should match the value in this: {{ $('Google Sheets Input1').item.json['Part Number'] }}. There could be only one color. Do not use the color code but use the color name for the output. \n### Examples:\n- Wrong Output Example: ff\n- Correct Output Example: Black \n\n## L70 Lifetime (hrs) \nCorrect Usage is 150,000. Just numbers, no letters.  \n\n## Environmental\nMust be one of these values: \n- Wet Location \n- Dry Location \n- Damp Location\n\nIP65-IP67 -> Wet Location  IP44 ->Damp Location IP20 -> Dry Location\n\n## IP Rating:\nCheck for values containing IP65, IP66 etc. \n\n## BUG Rating\nIf the {{ $('Google Sheets Input1').item.json['Product Type'] }} is equal to Area Lighting then there should be a bug_rating value. \n\n## DLC Certificate\n### Example Values: \n- Can be blank \n- DLC Listed \n- DLC Premium. \n\n### First Step\n\nIf there is no DLC informantion, then leave the dlc_certification value as blank. \n\n### Second Step\n\nIf you see a DLC Listed information, then dlc_certification is DLC Standard. \n\nIf you see DLC Premium information in the document provided, then the dlc_certification value is DLC Premium. \n\n### Third Step\n\nOn the next step, you should check the DLC Qpl Code (By Lens) column in the Catalog Data and find the matching information according to the part after the last dash of the part number provided. \n#### Example\n- Part Number: ESL-ERHB-90W-150-WH-90D\n- By lens: (90D) — PCRWUW6H\n- DLC Id: PCRWUW6H\n\n## Safety Certificate\nCheck the document provided to find if there is any value containing UL or ETL and add it accordingly to the safety_certification. \n### Examples: \n- Correct Output Example: UL\n- Correct Output Example: ETL\n- Wrong Output Example: UL Certified\n- Wrong Output Example: ETL US\n\n## Certifications\ncert1, cert2, cert3 and cert4 can only include these values:\n- Energy Star\t\n- Title 24\n- NSF\n\nT24 is a valid certificate and its correct usage is Title 24. To add this certificate, you must see a logo or text similar to T24 Compliant. \n\n## Output Control Type\nIf there is the word 'dimming' in the file provided, then fill the output_control_type with value 'Dimming'. Otherwise, fill it it word 'Fixed'. \n\nThe output should only contain Triac or something like '0-10V' and no more. \n\n### Examples \n- Correct Dimming Value Example 1: 1-10V\n- Correct Dimming Value Example 2: Triac\n- Wrong Dimming Value Example 1: 1-10V Dimming\n- Wrong Dimming Value Example 2: Triac Dimmable\n\n## Housing Material\nWhen you see the word 'Housing', you need to figure out the material and just add the material name but no more to the related field.\n### Example: \"housing_material\": \"Die-cast\"\n\n##  Shielding / Lens Type\nWhen you see the word 'Lens', you need to figure out the lens type and just add the material name but no more to the related field. \n### Example: \"lens_type\":\"Polycarbonate\"\n\n## Mounting\nIf the Product Type is Highbay Lighting, then mtg1 is Ceiling and mtg2 is Suspended. \n\n## Operating Temperature\nminimum_celcius and maximum_celcius values must be pulled from the Operating Temperature column from the Electrical Load — Standard Voltage section. The values must contain °C after the numbers.  \n\n## THD\nCheck the THD value in Electrical Load — Standard Voltage section. \n\n## Beam Angle:\nFirstly, check Product Specifications section. If there is one value, then use it. If there are multiple values, check the ordering guide and find the lens or beam angle value and match with the part number ({{ $('Google Sheets Input1').item.json['Part Number'] }}). After matching ordering guide with the part number, look for the value in the Catalog Data section. \n\n## Distrubition Type\nIf there is no beam angle there should be a distrubiton type (wide, narrow, etc.). \n\nT3 is a distrubiton type. Correct usage for T3 is Type 3. \n\n## Wattage\nExtract the wattage values from the Selectable Wattage in the Catalog Data section based on the ITEM# if there are multiple values.\n\n## Lumens\nExtract the Lumens values from the Max Lumen Output in the Catalog Data. If there are multiple wattages, there will be multiple lumens. For each wattage value, there will be a lumen value. Pick the right value or values matching the product part number {{ $('Google Sheets Input1').item.json['Part Number'] }} and make sure the number of Wattage values for a product is equal to the number Lumen values. \n\n## Kelvin Values \nExtract the Kelvin velues from the Kelvin in the Catalog Data which is at the beginning of the 3rd page. There can one value or multiple values. You must provide one cct value if there is only one value and make kelvin_selectable returning false. The value(s) must contain 'K' at the end. \n\n## Structured Data Extraction Rules\n\n### General Extraction Guidelines\n- Only extract rows that contain a valid `ITEM#` (part number).\n- Treat each `ITEM#` as a unique identifier — it defines the boundary for a product entry.\n- Ignore section headers like \"2 FOOT\" or \"4 FOOT\" unless used to infer physical size or grouping context.\n\n### Handling Merged or Implied Cell Values\n- If a cell is empty but previous rows share the same `ITEM#` prefix or group, **inherit** the value from the last available matching row.\n- Apply this inheritance for fields like wattage, voltage, or any other repeated data unless explicitly overridden.\n\n### Handling Multiple ITEM#s or Variants\n- If a row contains multiple `ITEM#` values (e.g., lens options like `ESL-RHB-100200W-240-ff-120D` and `ESL-RHB-100200W-240-ff-60D`), treat each as a **separate entry**.\n- Duplicate and assign associated values (Kelvin, Lumen Output, Efficacy, DLC QPL Code, etc.) to each ITEM# accordingly.\n- Ensure each configuration (e.g., lens angle, CCT, etc.) is recorded as an independent product entry.\n\n### Data Extraction Expectations\n- Extract all available fields relevant to each product. Typical fields may include (but are not limited to):\n  - Part number (`ITEM#`)\n  - Wattage\n  - Color temperature (Kelvin)\n  - Lumen output\n  - Efficacy (lm/W)\n  - Input voltage\n  - Certification codes (e.g., DLC QPL Code)\n- Do not assume the presence of every field in every row — extract only what is present or logically inherited.\n- Normalize units and field formats consistently (e.g., `4000K`, `120–277 VAC`, no trailing symbols).\n\n### Additional Notes\n- Do not extract or generate rows that contain only section labels or blank cells.\n- Do not guess values unless clearly implied or inherited.\n- Maintain a one-to-one mapping between each ITEM# and its associated data fields.\n\n### Handling Merged Cells in Catalog Table\n\n- Rule: If `WATTAGE` is empty in a row but the previous row shares the same `ITEM#` root, inherit it.\n- Example:\n\n| ITEM#              | WATTAGE | ... |\n|--------------------|---------|-----|\n| ESL-XYZ-100W-4000K | 100W    | ... |\n| ESL-XYZ-100W-5000K |         | ... |\n\n- The second row's wattage is `100W` (inherited).\n\n\n\n## Important Rules\n- If there is no value for any field, leave it empty and do not add any values such as 'Not Specified' or 'N/A'. \n- Do not make up any values or add them into the output. ALWAYS MAKE SURE that you provide correct results for the output. If you can't extract data correctly, leave it blank. \n-  The number of Wattage itmes must be equal to the number Lumen items(values). Double check this. \n- Always obey the Structured Data Extraction Rules defined above. "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1,
+      "position": [
+        480,
+        112
+      ],
+      "id": "780bb0f4-05c3-4ee0-bf91-fee9020628b4",
+      "name": "Information Extractor1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets Input1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "Google Sheets Input1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Premium Parse1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Premium Parse1": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Premium Result1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Premium Result1": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor1": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "eecd6d17-f250-4a68-b3f3-6a02e9814893",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "YOUR_N8N_INSTANCE_ID"
+  },
+  "id": "HSjV8NOgp61N2Iwi",
+  "tags": []
+}
