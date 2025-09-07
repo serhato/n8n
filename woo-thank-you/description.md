@@ -2,12 +2,12 @@
 This workflow is designed to send a personalized thank-you email to a customer after an order is placed.
 
 ## What It Does
-- Check new orders regularly
-- Get order details from the WooCommerce website
-- Enters the essential information into a Google Sheet
-- Translates the product information to English
-- Sends the sample email to the related person
-- Sends the confirmed email to the customer
+1. Check new orders regularly
+2. Get order details from the WooCommerce website
+3. Enters the essential information into a Google Sheet
+4. Translates the product information to English
+5. Sends the sample email to the related person
+6. Sends the confirmed email to the customer
 
 ## Nodes Included
 - Schedule
@@ -27,4 +27,8 @@ This workflow is designed to send a personalized thank-you email to a customer a
 - Code in JS
 - A HITL(Human in the loop) process
 
-This is a very basic code to test a few solutions in n8n. For the production level, this workflow needs more steps and details. 
+## Improvements to Be Made
+- Mark an order in the Google Sheet as processed to avoid multiple sent emails.
+- A better HITL approach to provide a clear prompt to the LLM to edit the declined email draft
+- A product recommendation and a possible discount coupon system
+- Inclusion of customer follow-up system via Google Sheet, Notion, or a CRM
